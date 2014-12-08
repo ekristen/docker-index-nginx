@@ -8,7 +8,14 @@ upstream docker-index {
 
 server {
   listen *:80;
-  return 301 https://$server_name$request_uri;
+  server_name REGISTRY_HOSTNAME;
+  return 301 https://REGISTRY_HOSTNAME$request_uri;
+}
+
+server {
+  listen *:80;
+  server_name INDEX_HOSTNAME;
+  return 301 https://INDEX_HOSTNAME$request_uri;
 }
 
 server {
