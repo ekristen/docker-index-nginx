@@ -1,0 +1,44 @@
+upstream docker-registry {
+  server localhost:5000;
+}
+
+upstream docker-index {
+  server localhost:5100;
+}
+
+server {
+  listen *:443;
+  server_name REGISTRY_HOSTNAME;
+  ssl on;
+  ssl_certificate /etc/nginx/ssl/certificate.crt;
+  ssl_certificate_key /etc/nginx/ssl/private.key;
+  location / {
+    proxy_set_header  Host           $http_host;   # required for docker client's sake
+    proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
+    proxy_read_timeout               900;
+    proxy_set_header X-Forwarded-Proto "https";
+    proxy_set_header X-Forwarded-Protocol "https";
+    proxy_pass  http://docker-registry;
+  }
+}
+
+server {
+  listen *:443;
+  server_name INDEX_HOSTNAME;
+
+  ssl on;
+  ssl_certificate /etc/nginx/ssl/certificate.crt;
+  ssl_certificate_key /etc/nginx/ssl/private.key;
+
+  client_max_body_size 0; # disable any limits to avoid HTTP 413 for large image uploads
+  chunked_transfer_encoding on;
+
+  location / {
+    proxy_set_header  Host           $http_host;   # required for docker client's sake
+    proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
+    proxy_read_timeout               900;
+    proxy_set_header X-Forwarded-Proto "https";
+    proxy_set_header X-Forwarded-Protocol "https";
+    proxy_pass  http://docker-index;
+  }
+}
