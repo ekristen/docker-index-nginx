@@ -24,12 +24,12 @@ server {
   ssl on;
   ssl_certificate /etc/nginx/ssl/certificate.crt;
   ssl_certificate_key /etc/nginx/ssl/private.key;
+
   client_max_body_size 0;
+  proxy_set_header  Host           $http_host;   # required for docker client's sake
+  proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
+
   location / {
-    proxy_set_header  Host           $http_host;   # required for docker client's sake
-    proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
-    proxy_set_header X-Forwarded-Proto "https";
-    proxy_set_header X-Forwarded-Protocol "https";
     proxy_pass  http://docker-registry;
   }
 }
@@ -43,13 +43,10 @@ server {
   ssl_certificate_key /etc/nginx/ssl/private.key;
 
   client_max_body_size 0;
+  proxy_set_header  Host           $http_host;   # required for docker client's sake
+  proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
 
   location / {
-    proxy_set_header  Host           $http_host;   # required for docker client's sake
-    proxy_set_header  X-Real-IP      $remote_addr; # pass on real client's IP
-    proxy_read_timeout               900;
-    proxy_set_header X-Forwarded-Proto "https";
-    proxy_set_header X-Forwarded-Protocol "https";
     proxy_pass  http://docker-index;
   }
 }
