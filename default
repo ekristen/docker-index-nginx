@@ -1,9 +1,9 @@
 upstream docker-registry {
-  server REGISTRY_IP:5000;
+  server registry:5000;
 }
 
 upstream docker-index {
-  server INDEX_IP:5100;
+  server index:5100;
 }
 
 server {
